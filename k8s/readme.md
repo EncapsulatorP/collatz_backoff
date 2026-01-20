@@ -30,5 +30,5 @@ This guarantees:
 Build and push image:
 
 ```bash
-docker build -t YOUR_REPO/collatz-backoff-k8s:latest .
-docker push YOUR_REPO/collatz-backoff-k8s:latest
+docker build -t EncapsulatorP/collatz_backoff:latest .
+docker push EncapsulatorP/collatz_backoff:latest

@@ -3,7 +3,7 @@
 Collatz-seeded collision-free backoff (per retry step)
 
 Key idea:
-- To guarantee "no collisions at step k", you must assign each participant a unique slot.
+- To guarantee "no collisions at step k", it  must be assigned to each participant a unique slot.
 - We do that with a bijection (affine permutation) mod M:
     offset_k(id) = (a_k * id + b_k) mod M
 - Collatz is only used to generate (a_k, b_k) cheaply per step k.
