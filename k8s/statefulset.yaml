@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: collatz-backoff-demo
+spec:
+  serviceName: collatz-backoff-demo
+  replicas: 20
+  selector:
+    matchLabels:
+      app: collatz-backoff-demo
+  template:
+    metadata:
+      labels:
+        app: collatz-backoff-demo
+    spec:
+      containers:
+        - name: demo
+          image: YOUR_DOCKERHUB_OR_GHCR/collatz-backoff-k8s:latest
+          imagePullPolicy: Always
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+
+            # Probe target (set to something that fails for demo)
+            - name: TARGET_URL
+              value: "http://collatz-backoff-svc:8080/healthz"
+
+            # Backoff tuning
+            - name: BACKOFF_BASE_SECONDS
+              value: "0.05"
+            - name: BACKOFF_SLOT_MS
+              value: "1"
+            - name: BACKOFF_SLOTS_M
+              value: "1024"
+            - name: COLLATZ_SEED
+              value: "27"
+            - name: BACKOFF_CAP_SECONDS
+              value: "10"
+
+            - name: MAX_RETRIES
+              value: "50"
+            - name: PROBE_TIMEOUT
+              value: "1.0"
