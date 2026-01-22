@@ -59,17 +59,25 @@ def main() -> int:
             print(f"[ok] pod={pod_name} reached {url} at retry={k}", flush=True)
             return 0
 
+        rng_offset = None
         if hybrid_prob > 0.0 and rng.random() < hybrid_prob:
             offset = rng.randrange(cfg.slots_M)
             base = cfg.base_seconds * (2 ** k)
             jitter = (offset * cfg.slot_ms) / 1000.0
             wait = min(cfg.cap_seconds, base + jitter)
+            mode = "rng"
+            rng_offset = offset
         else:
             wait = collatz_seeded_backoff_seconds(node_id, k, cfg)
+            mode = "det"
 
         # Print enough info to compare pods
+        if rng_offset is not None:
+            mode_note = f"rng_offset={rng_offset}"
+        else:
+            mode_note = "rng_offset=-"
         print(
-            f"[retry] pod={pod_name} id={node_id} k={k} wait={wait:.4f}s "
+            f"[retry] pod={pod_name} id={node_id} k={k} mode={mode} {mode_note} wait={wait:.4f}s "
             f"(base={cfg.base_seconds*(2**k):.4f}s + jitter)",
             flush=True,
         )

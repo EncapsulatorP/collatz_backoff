@@ -28,6 +28,16 @@ An affine map `f(x) = (a * x + b) mod M` is a bijection iff `gcd(a, M) = 1`.
 For power-of-two M, any odd `a` is invertible. This implementation forces `a_k` odd
 and falls back to `a_k = 1` if `gcd(a_k, M) != 1`.
 
+## Simple intuition (minimal math)
+
+Think of M slots in a ring. For a fixed retry step, we pick two numbers `a` and `b`:
+- `a` tells you how far to jump around the ring per ID
+- `b` is a fixed shift for everyone
+
+If `a` is coprime to M, each ID lands on a unique slot, so there are no collisions
+at that retry step. The Collatz sequence is just a cheap way to pick new `a, b`
+values per step.
+
 ## Caveats and security notes
 
 - If `replicas > M`, collisions are guaranteed by the pigeonhole principle.
