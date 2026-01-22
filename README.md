@@ -63,6 +63,8 @@ Configure with env vars (defaults are in code):
 - `BACKOFF_CAP_SECONDS`
 - `MAX_RETRIES`
 - `PROBE_TIMEOUT`
+- `HYBRID_RNG_PROB` (0.0 disables; >0 enables mixed RNG jitter)
+- `HYBRID_RNG_SEED` (seed for RNG in hybrid mode)
 
 ## Docker
 

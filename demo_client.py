@@ -4,11 +4,13 @@ from __future__ import annotations
 import os
 import sys
 import time
+import random
 import urllib.request
 import urllib.error
 
 from collatz_backoff import (
     BackoffConfig,
+    CollatzBackoff,
     collatz_seeded_backoff_seconds,
     statefulset_ordinal,
     env_int,
@@ -43,6 +45,10 @@ def main() -> int:
 
     max_retries = env_int("MAX_RETRIES", 50)
     timeout = env_float("PROBE_TIMEOUT", 1.0)
+    hybrid_prob = env_float("HYBRID_RNG_PROB", 0.0)
+    rng_seed = env_int("HYBRID_RNG_SEED", 1337)
+    rng = random.Random(rng_seed)
+    backoff = CollatzBackoff(cfg)
 
     print(f"[boot] pod={pod_name} node_id={node_id} url={url} cfg={cfg}", flush=True)
 
@@ -53,7 +59,13 @@ def main() -> int:
             print(f"[ok] pod={pod_name} reached {url} at retry={k}", flush=True)
             return 0
 
-        wait = collatz_seeded_backoff_seconds(node_id, k, cfg)
+        if hybrid_prob > 0.0 and rng.random() < hybrid_prob:
+            offset = rng.randrange(cfg.slots_M)
+            base = cfg.base_seconds * (2 ** k)
+            jitter = (offset * cfg.slot_ms) / 1000.0
+            wait = min(cfg.cap_seconds, base + jitter)
+        else:
+            wait = collatz_seeded_backoff_seconds(node_id, k, cfg)
 
         # Print enough info to compare pods
         print(
